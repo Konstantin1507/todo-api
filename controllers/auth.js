@@ -1,21 +1,18 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
-const User = require('../models/user');
+import User from '../models/user.js';
 
-exports.signup = async (req, res) => {
-  const login = req.body.login;
-  const password = req.body.password;
+const signup = async (req, res) => {
+  const { login, password } = req.body;
+
   try {
-    const existingUser = await User.findOne({ login: login });
+    const existingUser = await User.findOne({ login });
     if (existingUser) {
       return res
         .status(400)
         .json({ message: 'User with this login already exists.' });
     }
-    const newUser = new User({
-      login: login,
-      password: password,
-    });
+    const newUser = new User({ login, password });
     await newUser.save();
     res.status(201).json({ message: 'User created!' });
   } catch (error) {
@@ -23,11 +20,11 @@ exports.signup = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
-  const login = req.body.login;
-  const password = req.body.password;
+const login = async (req, res) => {
+  const { login, password } = req.body;
+
   try {
-    const loggedUser = await User.findOne({ login: login, password: password });
+    const loggedUser = await User.findOne({ login, password });
     if (!loggedUser) {
       return res.status(401).json({ message: 'Invalid login or password' });
     }
@@ -37,8 +34,10 @@ exports.login = async (req, res) => {
       },
       process.env.SECRET
     );
-    res.status(200).json({ token: token, message: 'User loggedin!' });
+    res.status(200).json({ token, message: 'User loggedin!' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+export { signup, login };

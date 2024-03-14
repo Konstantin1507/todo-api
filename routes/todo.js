@@ -1,22 +1,24 @@
-const express = require('express');
+import express from 'express';
 
-const todoController = require('../controllers/todo');
-const isAuth = require('../middleware/is-auth');
+import isAuth from '../middleware/is-auth.js';
+import {
+  createTodo,
+  getTodos,
+  getTodo,
+  updateTodo,
+  deleteTodo,
+} from '../controllers/todo.js';
 
 const router = express.Router();
 
-router.get('/todos', isAuth, todoController.getTodos);
+router.get('/todos', isAuth, getTodos);
 
-router.get('/todos/completed', isAuth, todoController.getCompletedTodos);
+router.get('/todo/:todoId', isAuth, getTodo);
 
-router.get('/todos/incompleted', isAuth, todoController.getIncompletedTodos);
+router.post('/todos', isAuth, createTodo);
 
-router.get('/todo/:todoId', isAuth, todoController.getTodo);
+router.put('/todo/:todoId', isAuth, updateTodo);
 
-router.post('/todos', isAuth, todoController.createTodo);
+router.delete('/todo/:todoId', isAuth, deleteTodo);
 
-router.put('/todo/:todoId', isAuth, todoController.updateTodo);
-
-router.delete('/todo/:todoId', isAuth, todoController.deleteTodo);
-
-module.exports = router;
+export default router;

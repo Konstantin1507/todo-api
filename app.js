@@ -1,14 +1,14 @@
-const express = require('express');
-cors = require('cors');
-const dotenv = require('dotenv');
-const mongoose = require('mongoose');
-const morgan = require('morgan');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import morgan from 'morgan';
 dotenv.config();
 
 const port = process.env.PORT || 8080;
 
-const todoRoutes = require('./routes/todo');
-const authRoutes = require('./routes/auth');
+import authRoutes from './routes/auth.js';
+import todoRoutes from './routes/todo.js';
 
 const app = express();
 
@@ -16,8 +16,8 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('tiny'));
 
-app.use('/todos', todoRoutes);
 app.use('/auth', authRoutes);
+app.use('/todos', todoRoutes);
 
 mongoose
   .connect(process.env.MONGO_URI)

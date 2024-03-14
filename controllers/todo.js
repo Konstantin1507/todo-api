@@ -1,15 +1,10 @@
-const Todo = require('../models/todo');
+import Todo from '../models/todo.js';
 
-exports.createTodo = async (req, res) => {
-  const content = req.body.content;
-  const isCompleted = req.body.isCompleted;
+const createTodo = async (req, res) => {
+  const { content, isCompleted } = req.body;
   const userId = req.userId;
 
-  const todo = new Todo({
-    isCompleted: isCompleted,
-    content: content,
-    userId: userId,
-  });
+  const todo = new Todo({ isCompleted, content, userId });
   try {
     const newTodo = await todo.save();
     res.status(201).json({
@@ -21,82 +16,31 @@ exports.createTodo = async (req, res) => {
   }
 };
 
-exports.getTodos = async (req, res) => {
-  const { page = 1, limit = 3 } = req.query;
+const getTodos = async (req, res) => {
+  const { status, page = 1, limit = 3 } = req.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
+  const query = { userId: req.userId };
+
+  if (status === 'completed' || status === 'incompleted') {
+    query.isCompleted = status === 'completed';
+  }
 
   try {
-    const totalTodos = await Todo.countDocuments({ userId: req.userId });
-    const todos = await Todo.find({ userId: req.userId })
-      .skip(skip)
-      .limit(parseInt(limit));
+    const totalTodos = await Todo.countDocuments(query);
+    const todos = await Todo.find(query).skip(skip).limit(parseInt(limit));
 
     res.status(200).json({
-      totalTodos: totalTodos,
+      totalTodos,
       totalPages: Math.ceil(totalTodos / parseInt(limit)),
       currentPage: parseInt(page),
-      todos: todos,
+      todos,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-exports.getCompletedTodos = async (req, res) => {
-  const { page = 1, limit = 3 } = req.query;
-  const skip = (parseInt(page) - 1) * parseInt(limit);
-
-  try {
-    const totalCompletedTodos = await Todo.countDocuments({
-      userId: req.userId,
-      isCompleted: true,
-    });
-    const completedTodos = await Todo.find({
-      userId: req.userId,
-      isCompleted: true,
-    })
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    res.status(200).json({
-      totalCompletedTodos: totalCompletedTodos,
-      totalPages: Math.ceil(totalCompletedTodos / parseInt(limit)),
-      currentPage: parseInt(page),
-      completedTodos: completedTodos,
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-exports.getIncompletedTodos = async (req, res) => {
-  const { page = 1, limit = 3 } = req.query;
-  const skip = (parseInt(page) - 1) * parseInt(limit);
-
-  try {
-    const totalIncompletedTodos = await Todo.countDocuments({
-      userId: req.userId,
-      isCompleted: false,
-    });
-    const incompletedTodos = await Todo.find({
-      userId: req.userId,
-      isCompleted: false,
-    })
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    res.status(200).json({
-      totalIncompletedTodos: totalIncompletedTodos,
-      totalPages: Math.ceil(totalIncompletedTodos / parseInt(limit)),
-      currentPage: parseInt(page),
-      incompletedTodos: incompletedTodos,
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-exports.getTodo = async (req, res) => {
+const getTodo = async (req, res) => {
   const userId = req.userId;
   const todoId = req.params.todoId;
   const todo = await Todo.findById(todoId);
@@ -107,17 +51,16 @@ exports.getTodo = async (req, res) => {
     if (todo.userId !== userId) {
       return res.status(404).json({ message: 'Not authorized!' });
     }
-    res.status(200).json({ message: 'Todo fetched.', todo: todo });
+    res.status(200).json({ message: 'Todo fetched.', todo });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-exports.updateTodo = async (req, res) => {
+const updateTodo = async (req, res) => {
   const userId = req.userId;
   const todoId = req.params.todoId;
-  const content = req.body.content;
-  const isCompleted = req.body.isCompleted;
+  const { content, isCompleted } = req.body;
 
   try {
     const updatedTodo = await Todo.findById(todoId);
@@ -140,7 +83,7 @@ exports.updateTodo = async (req, res) => {
   }
 };
 
-exports.deleteTodo = async (req, res) => {
+const deleteTodo = async (req, res) => {
   const userId = req.userId;
   const todoId = req.params.todoId;
   try {
@@ -157,3 +100,5 @@ exports.deleteTodo = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export { createTodo, getTodos, getTodo, updateTodo, deleteTodo };
