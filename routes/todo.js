@@ -1,6 +1,7 @@
 import express from 'express';
 
 import isAuth from '../middleware/is-auth.js';
+import errorHandler from '../middleware/errorHandler.js';
 import {
   createTodo,
   getTodos,
@@ -11,14 +12,14 @@ import {
 
 const router = express.Router();
 
-router.get('/todos', isAuth, getTodos);
+router.get('/todos', isAuth, errorHandler(getTodos));
 
-router.get('/todo/:todoId', isAuth, getTodo);
+router.get('/todo/:todoId', isAuth, errorHandler(getTodo));
 
-router.post('/todos', isAuth, createTodo);
+router.post('/todos', isAuth, errorHandler(createTodo));
 
-router.put('/todo/:todoId', isAuth, updateTodo);
+router.put('/todo/:todoId', isAuth, errorHandler(updateTodo));
 
-router.delete('/todo/:todoId', isAuth, deleteTodo);
+router.delete('/todo/:todoId', isAuth, errorHandler(deleteTodo));
 
 export default router;
