@@ -20,7 +20,7 @@ app.use('/auth', authRoutes);
 app.use('/todos', todoRoutes);
 
 app.use((error, req, res, next) => {
-  // console.log(error);
+  console.log(error);
   const status = error.statusCode || 500;
   const message = error.message || 'Something went wrong';
   res.status(status).json({ message: message });
